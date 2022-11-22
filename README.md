@@ -1,12 +1,10 @@
-
-
 trape (stable) v2.0
 ========
 
 People tracker on the Internet: Learn to track the world, to avoid being traced.
 
 ---
-Trape is an **OSINT** analysis and research tool, which allows people to track and execute intelligent **social engineering** attacks in real time. It was created with the aim of teaching the world how large Internet companies could obtain **confidential information** such as the status of sessions of their websites or services and control their users through their browser, without their knowlege, but It evolves with the aim of helping **government** organizations, companies and **researchers** to track the cybercriminals.
+Trape is an **OSINT** analysis and research tool, which allows people to track and execute intelligent **social engineering** attacks in real time. It was created with the aim of teaching the world how large Internet companies could obtain **confidential information** such as the status of sessions of their websites or services and control their users through their browser, without their knowledge, but It evolves with the aim of helping **government** organizations, companies and **researchers** to track the cybercriminals.
 
 ![--trape header](https://i.imgur.com/2ycpXEj.png)
 
@@ -77,22 +75,32 @@ How to use it
 ```
 git clone https://github.com/jofpin/trape.git
 cd trape
-python2 trape.py -h
+python3 trape.py -h
 ```
 If it does not work, try to install all the libraries that are located in the file **requirements.txt**
 ```
-python2 -m pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 Example of execution
 ```
-Example: python2 trape.py --url http://example.com --port 8080
+Example: python3 trape.py --url http://example.com --port 8080
+```
+
+If you face some problems installing the tool, it is probably due to Python versions conflicts, you should run a Python 2.7 environment :
+
+```
+pip3 install virtualenv
+virtualenv -p /usr/bin/python3 trape_env
+source trape_env/bin/activate
+pip3 install -r requirements.txt
+python3 trape.py -h
 ```
 
 **HELP  AND OPTIONS**
 ```
-user:~$ python2 trape.py --help
-usage: python trape.py -u <> -p <> [-h] [-v] [-u URL] [-p PORT]
+user:~$ python3 trape.py --help
+usage: python3 trape.py -u <> -p <> [-h] [-v] [-u URL] [-p PORT]
                                               [-ak ACCESSKEY] [-l LOCAL]
                                               [--update] [-n] [-ic INJC]
 
@@ -144,16 +152,7 @@ This development and others, the participants will be mentioned with name, Twitt
 * **CREATOR**
 
   --- Jose Pino - [@jofpin](https://twitter.com/jofpin) - (**Security Researcher**) 
-
-
-Donations
--------
-This is a project made with a lot of motivation to collaborate in the computer security community, if you liked the features. I invite you to make a donation in the following directions.
-
-**BITCOIN:** 36RouFnp6wEf4qu8QzUDJGVKoZ2Ja1ZSyW
-
-
-**ETHEREUM:** 0x6b9c69F0126c8A817c3A7296b2af80EF2e8B2d65
+ 
 
 Happy hacking!
 -------

